@@ -16,8 +16,8 @@ const io = new Server(server, {
 const rooms = {}
 
 // Função para criar uma nova sala
-function createRoom() {
-  const roomId = uuidv4()
+function createRoom(room) {
+  const roomId = room
   rooms[roomId] = {
     host: null,
     guest: null,
@@ -82,16 +82,16 @@ function makeGuess(roomId, role, guess) {
 io.on('connection', (socket) => {
   console.log('Novo cliente conectado:', socket.id)
 
-  socket.on('createRoom', () => {
-    const roomId = createRoom()
-    socket.join(roomId) // Adiciona o jogador à sala
+  socket.on('createRoom', (room) => {
+    const roomId = createRoom(room)
+    socket.join(roomId)
     socket.emit('roomCreated', { roomId })
   })
 
   socket.on('joinRoom', ({ roomId }) => {
     const role = joinRoom(roomId, socket)
     if (role) {
-      socket.join(roomId) // Adiciona o jogador à sala
+      socket.join(roomId)
       socket.emit('joinedRoom', { role })
     } else {
       socket.emit('error', { message: 'Sala cheia ou não encontrada.' })
